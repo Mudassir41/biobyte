@@ -1,0 +1,52 @@
+# Secrets / local env — never commit
+.env
+.env.*
+*.pem
+id_rsa*
+*_rsa
+*_ed25519
+dietpi-wifi.txt
+wpa_supplicant.conf
+**/dietpi-wifi.db
+**/.GLOBAL_PW.bin
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# Large / local data
+bioseg/data/datasets/
+bioseg/data/bioseg.db
+bioseg/data/bioseg.db-*
+bioseg/data/*.db-shm
+bioseg/data/*.db-wal
+bioseg/data/sessions/
+runs/
+*.db
+
+# Root training dumps (keep bioseg/edge/models/yolo11n-bioseg.onnx)
+/weights/
+/yolo11n-cls.onnx
+/yolo11n-cls.pt
+/yolo11n-cls_ncnn_model/
+*.pt
+!bioseg/edge/models/yolo11n-bioseg.onnx
+
+# Reference clones / archives (not our tree)
+_ref_ansar_biobyte/
+_archive_visionops_shop/
+
+# Godot / Blender noise
+bioseg/godot/.godot/
+**/*.blend1
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp

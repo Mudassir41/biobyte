@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BioSeg · Ward 3 · BW-05</title>
+  <style>
+    :root {
+      --page: #f1f5f9;
+      --surface: #ffffff;
+      --surface-muted: #f8fafc;
+      --line: #e2e8f0;
+      --line-strong: #cbd5e1;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --faint: #94a3b8;
+      --sidebar: #0f172a;
+      --sidebar-line: #1e293b;
+      --indigo: #4f46e5;
+      --indigo-hover: #4338ca;
+      --indigo-soft: #eef2ff;
+      --emerald: #10b981;
+      --emerald-soft: #ecfdf5;
+      --yellow: #eab308;
+      --yellow-soft: #fef9c3;
+      --yellow-ink: #854d0e;
+      --red: #ef4444;
+      --red-soft: #fee2e2;
+      --red-ink: #991b1b;
+      --hold: #f97316;
+      --hold-soft: #ffedd5;
+      --hold-ink: #9a3412;
+      --ok: #059669;
+      --danger: #dc2626;
+      --glass: #3b82f6;
+      --sharps: #334155;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --mono: ui-monospace, "Cascadia Code", monospace;
+      --shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 10px 40px rgba(15, 23, 42, 0.08);
+      --radius: 12px;
+      --radius-lg: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: var(--page);
+      color: var(--ink);
+      font-family: var(--sans);
+      display: flex;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, textarea:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--sidebar);
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid var(--sidebar-line);
+      min-height: 100vh;
+      position: sticky;
+      top: 0;
+      align-self: flex-start;
+    }
+    .brand {
+      padding: 20px;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.8);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #10b981, #2dd4bf);
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: white;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .brand p {
+      margin: 4px 0 0;
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.3;
+    }
+    .sidebar-nav {
+      padding: 12px;
+      flex: 1;
+    }
+    .nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+      padding: 8px 12px 6px;
+      font-weight: 600;
+    }
+    .mode-switch {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 4px;
+    }
+    .mode-switch button {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #94a3b8;
+      transition: background 0.15s, color 0.15s;
+    }
+    .mode-switch button:hover { background: rgba(30, 41, 59, 0.6); color: #e2e8f0; }
+    .mode-switch button.on {
+      background: var(--indigo);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    }
+    .edge-widget {
+      margin: 12px;
+      padding: 14px;
+      border-radius: var(--radius);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--sidebar-line);
+    }
+    .edge-widget strong { color: #fff; font-size: 12px; }
+    .edge-widget p { margin: 6px 0 0; font-size: 10px; color: #94a3b8; line-height: 1.4; }
+    #device-line { display: block; margin-top: 4px; font-size: 10px; color: #64748b; }
+
+    .main-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .topbar {
+      height: 64px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .topbar-title span { font-weight: 500; color: var(--muted); }
+    .head-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--emerald-soft);
+      color: #047857;
+      border: 1px solid #a7f3d0;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .live-pill.off {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--faint);
+      display: inline-block;
+    }
+    .dot.ok { background: var(--emerald); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25); }
+    .dot.bad { background: var(--danger); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+    #replay-badge {
+      display: none;
+      background: var(--hold-soft);
+      color: var(--hold-ink);
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      border: 1px solid #fdba74;
+    }
+    #replay-badge.on { display: inline-block; }
+    #clock { font-family: var(--mono); font-size: 12px; color: #475569; }
+
+    #banner {
+      display: none;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+    }
+    #banner.hold { display: block; background: var(--hold-soft); color: var(--hold-ink); border-bottom: 1px solid #fdba74; }
+    #banner.fail { display: block; background: var(--red-soft); color: var(--red-ink); }
+    #banner.offline { display: block; background: var(--red-soft); color: var(--red-ink); }
+    #banner.hold.pulse { animation: pulse 1.1s ease-in-out infinite; }
+    @keyframes pulse { 50% { filter: brightness(1.05); } }
+    @media (prefers-reduced-motion: reduce) {
+      #banner.hold.pulse { animation: none; }
+      #flap, #piece, #twin-flap, #twin-piece { transition: none !important; }
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1.15fr 0.95fr;
+      gap: 20px;
+      padding: 20px 24px;
+      min-height: 0;
+    }
+    section {
+      background: var(--surface);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    h2 small {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .frame {
+      position: relative;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: var(--radius-lg);
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    .frame.yellow { box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.45); }
+    .frame.red { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.45); }
+    .frame.hold { box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.45); }
+    .cam-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(220, 38, 38, 0.92);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .cam-badge .dot { background: #fff; width: 6px; height: 6px; animation: pulse-dot 1.5s infinite; }
+    @keyframes pulse-dot { 50% { opacity: 0.5; } }
+    .cam-tag {
+      position: absolute;
+      top: 12px;
+      left: 88px;
+      z-index: 2;
+      font-size: 11px;
+      color: rgba(255,255,255,0.85);
+      background: rgba(15, 23, 42, 0.65);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: var(--mono);
+    }
+    .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .standby {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #94a3b8; font-size: 14px; text-align: center; padding: 20px;
+      line-height: 1.5;
+    }
+
+    .card {
+      background: var(--surface-muted);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .card .klass { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); line-height: 1.1; }
+    .decision {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      border: 1px solid transparent;
+    }
+    .decision::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .decision.yellow { background: var(--yellow-soft); color: var(--yellow-ink); border-color: #fde047; }
+    .decision.yellow::before { background: var(--yellow); }
+    .decision.red { background: var(--red-soft); color: var(--red-ink); border-color: #fca5a5; }
+    .decision.red::before { background: var(--red); }
+    .decision.hold { background: var(--hold-soft); color: var(--hold-ink); border-color: #fdba74; }
+    .decision.hold::before { background: var(--hold); }
+    .decision.idle { background: #f1f5f9; color: var(--muted); border-color: var(--line); }
+    .decision.idle::before { background: var(--faint); }
+    .card dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 14px;
+      margin: 12px 0 0;
+      font-size: 13px;
+    }
+    .card dt { color: var(--muted); font-weight: 500; }
+    .card dd { margin: 0; font-weight: 600; color: var(--ink); }
+
+    .rig { flex: 1; min-height: 220px; background: #f8fafc; border-radius: var(--radius); border: 1px solid var(--line); padding: 4px; }
+    .rig svg { width: 100%; height: 100%; display: block; }
+    #flap { transition: transform 200ms linear; transform-box: view-box; transform-origin: 300px 176px; }
+    #piece { transition: transform 500ms ease-in, opacity 500ms; opacity: 0; }
+    #piece.show { opacity: 1; }
+    #twin-panel { display: none; flex-direction: column; gap: 10px; min-height: 0; flex: 1; }
+    body.mode-twin #live-rig { display: none; }
+    body.mode-twin #twin-panel { display: flex; }
+    #twin-flap { transform-box: view-box; transform-origin: 170px 150px; transition: transform 200ms linear; }
+    #twin-piece { opacity: 0; transition: transform 620ms ease-in, opacity 180ms; }
+    #twin-piece.show { opacity: 1; }
+    #twin-status { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .route-guide h3 {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .route-guide .guide-lead {
+      margin: 4px 0 10px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .route-rows { display: flex; flex-direction: column; gap: 7px; }
+    .route-row {
+      display: grid;
+      grid-template-columns: 4.5rem 1fr;
+      gap: 8px;
+      align-items: start;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .route-tag {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 6px;
+      border-radius: 6px;
+      text-align: center;
+      border: 1px solid transparent;
+      line-height: 1.25;
+    }
+    .route-tag.yellow { background: var(--yellow-soft); color: var(--yellow-ink); border-color: #fde047; }
+    .route-tag.red { background: var(--red-soft); color: var(--red-ink); border-color: #fca5a5; }
+    .route-tag.white { background: #f1f5f9; color: var(--sharps); border-color: #cbd5e1; }
+    .route-tag.blue { background: #eff6ff; color: #1d4ed8; border-color: #93c5fd; }
+    .route-row p { margin: 0; color: var(--muted); }
+    .route-row p strong { color: var(--ink); font-weight: 600; }
+    .route-row .uno { display: block; font-size: 10px; color: var(--faint); margin-top: 2px; }
+    .route-guide .hardware {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .route-guide .hardware strong { color: var(--ink); font-weight: 600; }
+    .legend { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface);
+    }
+    .chip strong { color: var(--ink); font-weight: 600; }
+    .chip.lit { border-color: #86efac; background: var(--emerald-soft); color: #047857; }
+    .chip.locked { border-color: #fecaca; color: #b91c1c; text-decoration: line-through; }
+
+    .right { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+    .right section { flex: 1; }
+    .f0 { font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+    #destinations { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+    #destinations li {
+      font-size: 13px;
+      padding: 8px 10px;
+      background: var(--surface-muted);
+      border-radius: 8px;
+      border: 1px solid var(--line);
+    }
+    #process-state.yes { color: var(--ok); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .row-actions, .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .actions button, .row-actions button {
+      background: var(--surface);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .actions button:hover, .row-actions button:hover { background: #f8fafc; border-color: #94a3b8; }
+    .actions button.primary, .row-actions button.primary, footer button.primary {
+      background: var(--indigo);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+    .actions button.primary:hover { background: var(--indigo-hover); }
+
+    .twin-classify h3 {
+      margin: 0 0 4px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .twin-classify .guide-lead {
+      margin: 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .classify-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+      margin-top: 12px;
+    }
+    .classify-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .classify-field select,
+    .classify-field input[type="file"] {
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: normal;
+      color: var(--ink);
+      background: var(--surface);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 8px 10px;
+      min-width: 200px;
+    }
+    .classify-field input[type="file"] { padding: 6px 8px; max-width: 260px; }
+    .classify-status {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .twin-result {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .twin-result[hidden] { display: none !important; }
+    .twin-result .bin-head {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .twin-result.yellow .bin-head { color: var(--yellow-ink); }
+    .twin-result.red .bin-head { color: var(--red-ink); }
+    .twin-result.hold .bin-head { color: var(--hold-ink); }
+    .twin-result dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 12px;
+      margin: 10px 0 0;
+      font-size: 13px;
+    }
+    .twin-result dt { color: var(--muted); font-weight: 500; }
+    .twin-result dd { margin: 0; font-weight: 600; color: var(--ink); }
+    #verify-result { font-weight: 600; font-size: 13px; }
+
+    footer {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 14px 24px;
+      border-top: 1px solid var(--line);
+      background: var(--surface);
+      font-size: 14px;
+      color: var(--muted);
+    }
+    footer b { font-size: 18px; color: var(--ink); font-weight: 700; }
+    footer button.primary {
+      margin-left: auto;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 13px;
+      border: 0;
+    }
+    footer button.primary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    dialog {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      width: min(440px, 92vw);
+      box-shadow: var(--shadow-lg);
+    }
+    dialog::backdrop { background: rgba(15, 23, 42, 0.4); }
+    dialog h3 { margin: 0 0 8px; font-size: 20px; font-weight: 700; }
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      background: var(--surface-muted);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 14px;
+    }
+    dialog menu { display: flex; justify-content: flex-end; gap: 8px; padding: 0; margin: 12px 0 0; list-style: none; }
+
+    @media (max-width: 1100px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; min-height: auto; position: static; flex-direction: row; flex-wrap: wrap; }
+      .sidebar-nav { flex: 1; }
+      .edge-widget { flex: 1 1 100%; margin-top: 0; }
+      .mode-switch { flex-direction: row; }
+      main { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" aria-label="BioSeg navigation">
+    <div>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">♻</div>
+        <div>
+          <h1>BioSeg</h1>
+          <p>Smart biomedical waste · Ward 3 · BW-05</p>
+        </div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-label">View mode</div>
+        <div class="mode-switch" role="group" aria-label="View">
+          <button type="button" id="mode-live" class="on" aria-pressed="true">Live hardware</button>
+          <button type="button" id="mode-twin" aria-pressed="false">Digital twin</button>
+        </div>
+      </div>
+    </div>
+    <div class="edge-widget">
+      <strong>Raspberry Pi · Arduino Uno</strong>
+      <span id="device-line">yolo11n-bioseg · Pi camera · Arduino Uno, two bins</span>
+      <p>Live stack: motionEye on :9081, ONNX on edge, one servo — yellow &amp; red only on the Uno.</p>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <div class="topbar-title">Live AI detection <span>· chute &amp; ledger</span></div>
+      <div class="head-meta">
+        <span id="replay-badge">REPLAY</span>
+        <span id="live-pill" class="live-pill off"><i id="conn-dot" class="dot"></i><span id="conn-text">Waiting for the server</span></span>
+        <span id="clock">—</span>
+        <span id="batch-id">Batch —</span>
+      </div>
+    </header>
+    <div id="banner" role="status"></div>
+    <main>
+      <section>
+        <h2>What the camera sees<small>Tray camera · DietPi motionEye</small></h2>
+        <div id="frame" class="frame">
+          <span class="cam-badge"><span class="dot"></span> Live</span>
+          <span class="cam-tag">:9081</span>
+          <img id="camera" alt="" hidden>
+          <div id="standby" class="standby">Waiting for the DietPi camera. motionEye serves it on port 9081. This page does not use the laptop camera.</div>
+        </div>
+        <div class="card twin-classify" id="demo-classify-card">
+          <h3>Drop a photo through the model</h3>
+          <p class="guide-lead">Pick a stock class or upload your own JPEG/PNG. Same ONNX as the rig — no laptop camera.</p>
+          <div class="classify-row">
+            <label class="classify-field">Choose sample photo
+              <select id="twin-sample-select">
+                <option value="gauze">Gauze → yellow</option>
+                <option value="glove">Glove → red</option>
+                <option value="syringe">Syringe → red</option>
+                <option value="urine_bag">Urine bag → red</option>
+                <option value="test_tube">Test tube → red</option>
+                <option value="glasses">Glasses → hold</option>
+              </select>
+            </label>
+            <button type="button" id="twin-sample-run" class="primary">Run sample</button>
+          </div>
+          <div class="classify-row">
+            <label class="classify-field">Upload image
+              <input type="file" id="twin-upload" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" />
+            </label>
+            <button type="button" id="twin-upload-run">Classify upload</button>
+          </div>
+          <p id="classify-status" class="classify-status">Ready — sample or upload runs ONNX on the server.</p>
+          <div id="twin-result" class="twin-result hold" hidden>
+            <div class="bin-head" id="twin-result-bin">—</div>
+            <dl>
+              <dt>Class</dt><dd id="twin-result-class">—</dd>
+              <dt>Confidence</dt><dd id="twin-result-conf">—</dd>
+              <dt>Why</dt><dd id="twin-result-reason">—</dd>
+              <dt>Flap</dt><dd id="twin-result-flap">—</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="card">
+          <div id="klass" class="klass">No item yet</div>
+          <span id="decision" class="decision idle">Waiting</span>
+          <dl>
+            <dt>Confidence</dt><dd id="conf">—</dd>
+            <dt>Why</dt><dd id="reason">—</dd>
+            <dt>Flap</dt><dd id="flap-label">Shut</dd>
+            <dt>Latency</dt><dd id="latency">—</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section>
+        <h2 id="machine-title">The chute, as built<small>Two-bin honesty on the Uno</small></h2>
+        <div id="live-rig" class="rig">
+          <svg viewBox="0 0 600 480" role="img" aria-label="Side view of the chute, flap, yellow bin and red bin">
+            <polygon points="230,16 370,16 340,150 260,150" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+            <text x="300" y="78" fill="#64748b" font-size="16" text-anchor="middle">Chute</text>
+            <line x1="262" y1="118" x2="338" y2="118" stroke="#ef4444" stroke-width="2" stroke-dasharray="5 4"/>
+            <text x="300" y="110" fill="#ef4444" font-size="12" text-anchor="middle">IR on Uno D2</text>
+            <g id="piece">
+              <circle cx="300" cy="150" r="11" fill="#334155"/>
+            </g>
+            <g id="flap">
+              <line x1="300" y1="176" x2="300" y2="268" stroke="#475569" stroke-width="8" stroke-linecap="round"/>
+              <circle cx="300" cy="176" r="9" fill="#4f46e5"/>
+            </g>
+            <rect x="48" y="300" width="160" height="150" rx="6" fill="#fff" stroke="#eab308" stroke-width="3"/>
+            <rect id="fill-yellow" x="56" y="438" width="144" height="0" fill="#eab308" opacity="0.85"/>
+            <text x="128" y="332" fill="#854d0e" font-size="20" font-weight="700" text-anchor="middle">Yellow</text>
+            <text x="128" y="354" fill="#64748b" font-size="13" text-anchor="middle">Soiled waste</text>
+            <text id="count-yellow" x="128" y="410" fill="#0f172a" font-size="36" text-anchor="middle" font-weight="700">0</text>
+            <rect x="392" y="300" width="160" height="150" rx="6" fill="#fff" stroke="#ef4444" stroke-width="3"/>
+            <rect id="fill-red" x="400" y="438" width="144" height="0" fill="#ef4444" opacity="0.85"/>
+            <text x="472" y="332" fill="#991b1b" font-size="20" font-weight="700" text-anchor="middle">Red</text>
+            <text x="472" y="354" fill="#64748b" font-size="13" text-anchor="middle">Contaminated plastic</text>
+            <text id="count-red" x="472" y="410" fill="#0f172a" font-size="36" text-anchor="middle" font-weight="700">0</text>
+            <text id="gate-note" x="300" y="292" fill="#f97316" font-size="14" text-anchor="middle">Gate shut. Nothing drops.</text>
+          </svg>
+        </div>
+        <div id="twin-panel">
+          <div class="rig">
+            <svg viewBox="0 0 680 400" role="img" aria-label="Four bins. The servo only drops into yellow and red.">
+              <polygon points="120,18 220,18 200,128 140,128" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+              <text x="170" y="70" fill="#64748b" font-size="14" text-anchor="middle">Chute</text>
+              <line x1="142" y1="96" x2="198" y2="96" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 3"/>
+              <text x="170" y="88" fill="#ef4444" font-size="11" text-anchor="middle">IR, Uno D2</text>
+              <g id="twin-piece">
+                <circle cx="170" cy="118" r="9" fill="#334155"/>
+              </g>
+              <g id="twin-flap">
+                <line x1="170" y1="150" x2="170" y2="228" stroke="#475569" stroke-width="7" stroke-linecap="round"/>
+                <circle cx="170" cy="150" r="8" fill="#4f46e5"/>
+              </g>
+              <text x="170" y="246" fill="#f97316" font-size="12" text-anchor="middle">One servo. D9.</text>
+              <rect x="20" y="258" width="145" height="120" rx="6" fill="#fff" stroke="#eab308" stroke-width="3"/>
+              <text x="92" y="286" fill="#854d0e" font-size="18" font-weight="700" text-anchor="middle">Yellow</text>
+              <text x="92" y="306" fill="#64748b" font-size="12" text-anchor="middle">Soiled waste · servo</text>
+              <text id="twin-count-yellow" x="92" y="348" fill="#0f172a" font-size="28" text-anchor="middle" font-weight="700">0</text>
+              <rect x="175" y="258" width="145" height="120" rx="6" fill="#fff" stroke="#ef4444" stroke-width="3"/>
+              <text x="247" y="286" fill="#991b1b" font-size="18" font-weight="700" text-anchor="middle">Red</text>
+              <text x="247" y="306" fill="#64748b" font-size="12" text-anchor="middle">Contaminated plastic · servo</text>
+              <text id="twin-count-red" x="247" y="348" fill="#0f172a" font-size="28" text-anchor="middle" font-weight="700">0</text>
+              <rect x="345" y="258" width="145" height="120" rx="6" fill="#fff" stroke="#334155" stroke-width="3"/>
+              <text x="417" y="286" fill="#334155" font-size="18" font-weight="700" text-anchor="middle">White</text>
+              <text x="417" y="306" fill="#64748b" font-size="12" text-anchor="middle">Sharps · by hand after hold</text>
+              <text id="twin-count-white" x="417" y="348" fill="#0f172a" font-size="28" text-anchor="middle" font-weight="700">0</text>
+              <rect x="515" y="258" width="145" height="120" rx="6" fill="#fff" stroke="#3b82f6" stroke-width="3"/>
+              <text x="587" y="286" fill="#2563eb" font-size="18" font-weight="700" text-anchor="middle">Blue</text>
+              <text x="587" y="306" fill="#64748b" font-size="12" text-anchor="middle">Glassware · by hand after hold</text>
+              <text id="twin-count-blue" x="587" y="348" fill="#0f172a" font-size="28" text-anchor="middle" font-weight="700">0</text>
+            </svg>
+          </div>
+          <div class="actions">
+            <button type="button" id="twin-model-gauze">Model: gauze</button>
+            <button type="button" id="twin-model-glove">Model: glove</button>
+            <button type="button" id="twin-model-syringe">Model: syringe</button>
+            <button type="button" id="twin-model-urine">Model: urine bag</button>
+            <button type="button" id="twin-model-tube">Model: test tube</button>
+            <button type="button" id="twin-model-glasses">Model: glasses → hold</button>
+            <button type="button" id="twin-ir">Trip the IR beam</button>
+            <button type="button" id="twin-yellow">Servo left, yellow</button>
+            <button type="button" id="twin-shut">Gate shut</button>
+            <button type="button" id="twin-red">Servo right, red</button>
+            <button type="button" id="twin-white">Hold, then white</button>
+            <button type="button" id="twin-blue">Hold, then blue</button>
+          </div>
+          <p id="twin-status">Twin shows all trained classes. Live hardware props are cotton / mask / glove. Model buttons run ONNX on stock photos — no laptop camera, no Arduino.</p>
+        </div>
+        <div class="card route-guide" id="route-guide" aria-labelledby="route-guide-title">
+          <h3 id="route-guide-title">What goes where</h3>
+          <p class="guide-lead">BMW Schedule I · edge <code style="font-size:10px">ROUTE_MAP</code> · one servo on the Uno (yellow left, red right). White and blue are not on the machine.</p>
+          <div class="route-rows">
+            <div class="route-row">
+              <span class="route-tag yellow">Yellow</span>
+              <p><strong>Soiled waste</strong> — gauze, cotton, dressings (also bandage, paper in map). Twin demo: <strong>gauze</strong>.<span class="uno">Uno LEFT → yellow bag</span></p>
+            </div>
+            <div class="route-row">
+              <span class="route-tag red">Red</span>
+              <p><strong>Contaminated plastic</strong> — glove, syringe (needle off in training photos), urine_bag, test_tube.<span class="uno">Uno RIGHT → red bag</span></p>
+            </div>
+            <div class="route-row">
+              <span class="route-tag white">White</span>
+              <p><strong>Sharps</strong> — needles, blades, scalpel (metal veto). Not trained; gate <strong>HOLD</strong>, then by hand to puncture-proof container.<span class="uno">No bin on Uno</span></p>
+            </div>
+            <div class="route-row">
+              <span class="route-tag blue">Blue</span>
+              <p><strong>Glass / hold class</strong> — <code style="font-size:11px">medical_glasses</code> maps to hold (goggles in the photo set, not vial ID). Gate <strong>HOLD</strong>, then by hand to blue-marked box.<span class="uno">No bin on Uno</span></p>
+            </div>
+          </div>
+          <p class="hardware"><strong>Live table props:</strong> cotton → yellow (reads as gauze); glove → red; surgical mask → expect <strong>HOLD</strong> (not in the six trained classes); keys or unknown → <strong>HOLD</strong>; optional syringe demo → red if classified as syringe.</p>
+          <div class="legend" id="live-legend">
+            <span class="chip" id="chip-white"><strong>White</strong> hint · metal veto</span>
+            <span class="chip" id="chip-blue"><strong>Blue</strong> hint · glass hold</span>
+            <span class="chip">Held in chute <strong id="count-hold">0</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="right">
+        <section>
+          <h2>Where it went</h2>
+          <ul id="destinations"></ul>
+          <p id="dest-empty" style="margin:0;color:var(--muted);font-size:13px;">Nothing has been sorted yet.</p>
+        </section>
+        <section>
+          <h2>Processed</h2>
+          <p class="f0" id="process-state">Not processed</p>
+          <p id="process-note" style="margin:0;color:var(--muted);font-size:13px;">Waiting for the other station. This screen does not invent a treatment result.</p>
+          <h2 style="margin-top:8px;">Ledger</h2>
+          <table>
+            <thead><tr><th>#</th><th>Event</th><th>Hash</th></tr></thead>
+            <tbody id="ledger-body"></tbody>
+          </table>
+          <div class="row-actions">
+            <button type="button" id="btn-verify">Verify chain</button>
+            <span id="verify-result">Not checked</span>
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer>
+      <div>Routed <b id="stat-routed">0</b></div>
+      <div>Hold rate <b id="stat-hold">0%</b></div>
+      <div>Overrides <b id="stat-overrides">0</b></div>
+      <div>Disagreements <b id="stat-disagree">0</b></div>
+      <div>Latency <b id="stat-latency">—</b></div>
+      <button type="button" id="btn-override" class="primary" disabled>Log an override</button>
+    </footer>
+  </div>
+
+  <dialog id="override-dialog">
+    <form method="dialog" id="override-form">
+      <h3>Log an override</h3>
+      <p id="override-item" style="color:var(--muted)">An override is a ledger row. It does not silently drop the item.</p>
+      <textarea id="override-reason" required placeholder="Why this item can leave the chute"></textarea>
+      <menu>
+        <button type="button" id="override-cancel">Cancel</button>
+        <button type="submit" class="primary" value="ok">Write to the ledger</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script>
+    const RIG = { flapLeft: -32, flapRight: 32, flapShut: 0, binFullAt: 12 };
+
+    const counts = { yellow: 0, red: 0, hold: 0, overrides: 0, disagree: 0 };
+    let lastEventAt = 0;
+    let everConnected = false;
+    let heldItem = null;
+    let latencySamples = [];
+
+    const $ = (id) => document.getElementById(id);
+
+    function setConnection(ok, text) {
+      $("conn-dot").className = "dot " + (ok ? "ok" : "bad");
+      $("conn-text").textContent = text;
+      const pill = $("live-pill");
+      pill.classList.toggle("off", !ok);
+    }
+
+    function showBanner(kind, text) {
+      const el = $("banner");
+      el.className = kind ? kind + (kind === "hold" ? " pulse" : "") : "";
+      el.textContent = text || "";
+    }
+
+    function plainReason(reason) {
+      const map = {
+        metal_veto: "Sharps → white translucent container. No white bin on this Uno.",
+        glass_detected: "Glassware → blue-marked box. No blue bin on this Uno.",
+        low_confidence: "The model is not sure, so the flap stays shut.",
+        unknown_object: "Not a known class, so the flap stays shut.",
+        sensor_vision_disagreement: "The sensor and the camera disagree."
+      };
+      return map[reason] || reason || "—";
+    }
+
+    function setDecision(route) {
+      const el = $("decision");
+      const frame = $("frame");
+      frame.className = "frame";
+      if (route === "yellow") {
+        el.className = "decision yellow";
+        el.textContent = "Yellow bin";
+        frame.classList.add("yellow");
+      } else if (route === "red") {
+        el.className = "decision red";
+        el.textContent = "Red bin";
+        frame.classList.add("red");
+      } else if (route === "hold") {
+        el.className = "decision hold";
+        el.textContent = "Held in the chute";
+        frame.classList.add("hold");
+      } else {
+        el.className = "decision idle";
+        el.textContent = "Waiting";
+      }
+    }
+
+    const twinCounts = { yellow: 0, red: 0, white: 0, blue: 0 };
+
+    function setFlap(pos) {
+      let deg = RIG.flapShut;
+      let label = "Shut — nothing drops";
+      if (pos === "left") { deg = RIG.flapLeft; label = "Left, into yellow"; }
+      else if (pos === "right") { deg = RIG.flapRight; label = "Right, into red"; }
+      $("flap").style.transform = "rotate(" + deg + "deg)";
+      if ($("twin-flap")) $("twin-flap").style.transform = "rotate(" + deg + "deg)";
+      $("flap-label").textContent = label;
+      $("gate-note").textContent = pos === "left" || pos === "right" ? "Flap open" : "Gate shut. Nothing drops.";
+    }
+
+    function paintTwin() {
+      $("twin-count-yellow").textContent = twinCounts.yellow;
+      $("twin-count-red").textContent = twinCounts.red;
+      $("twin-count-white").textContent = twinCounts.white;
+      $("twin-count-blue").textContent = twinCounts.blue;
+    }
+
+    function twinAnimate(route) {
+      const piece = $("twin-piece");
+      const flap = $("twin-flap");
+      let deg = 0;
+      let shift = "translate(0, 28px)";
+      let text = "Gate shut. The item stays in the chute. Uno command HOLD.";
+      if (route === "yellow") {
+        deg = -36;
+        shift = "translate(-78px, 190px)";
+        twinCounts.yellow += 1;
+        text = "Servo left. Uno command LEFT. The item drops into yellow.";
+      } else if (route === "red") {
+        deg = 36;
+        shift = "translate(77px, 190px)";
+        twinCounts.red += 1;
+        text = "Servo right. Uno command RIGHT. The item drops into red.";
+      } else if (route === "white") {
+        twinCounts.white += 1;
+        shift = "translate(247px, 190px)";
+        text = "Gate stays shut. A person carries it to the white bin. The Uno cannot drop there.";
+      } else if (route === "blue") {
+        twinCounts.blue += 1;
+        shift = "translate(417px, 190px)";
+        text = "Gate stays shut. A person carries it to the blue bin. The Uno cannot drop there.";
+      } else if (route === "ir") {
+        shift = "translate(0, 8px)";
+        text = "IR on Uno D2 sees an item. The flap stays shut until a route is chosen.";
+      }
+      flap.style.transform = "rotate(" + deg + "deg)";
+      piece.classList.add("show");
+      piece.style.transform = shift;
+      $("twin-status").textContent = text;
+      paintTwin();
+      if (route !== "ir") {
+        setTimeout(() => {
+          piece.classList.remove("show");
+          piece.style.transform = "translate(0, 0)";
+        }, 760);
+      }
+    }
+
+    function setMode(mode) {
+      const twin = mode === "twin";
+      document.body.classList.toggle("mode-twin", twin);
+      $("mode-live").classList.toggle("on", !twin);
+      $("mode-twin").classList.toggle("on", twin);
+      $("mode-live").setAttribute("aria-pressed", String(!twin));
+      $("mode-twin").setAttribute("aria-pressed", String(twin));
+      $("machine-title").innerHTML = twin
+        ? "Four-bin design<small>Design view — servo only reaches yellow &amp; red</small>"
+        : "The chute, as built<small>Two-bin honesty on the Uno</small>";
+    }
+
+    function dropPiece(route) {
+      const piece = $("piece");
+      const shift = route === "yellow" ? "translate(-150px, 150px)" : route === "red" ? "translate(150px, 150px)" : "translate(0, 20px)";
+      piece.classList.add("show");
+      piece.style.transform = shift;
+      setTimeout(() => {
+        piece.classList.remove("show");
+        piece.style.transform = "translate(0, 0)";
+      }, 700);
+    }
+
+    function paintCounts() {
+      $("count-yellow").textContent = counts.yellow;
+      $("count-red").textContent = counts.red;
+      $("count-hold").textContent = counts.hold;
+      const total = counts.yellow + counts.red + counts.hold;
+      $("stat-routed").textContent = counts.yellow + counts.red;
+      $("stat-hold").textContent = total ? Math.round((counts.hold / total) * 100) + "%" : "0%";
+      $("stat-overrides").textContent = counts.overrides;
+      $("stat-disagree").textContent = counts.disagree;
+      const yFill = Math.min(1, counts.yellow / RIG.binFullAt) * 120;
+      const rFill = Math.min(1, counts.red / RIG.binFullAt) * 120;
+      $("fill-yellow").setAttribute("height", yFill);
+      $("fill-yellow").setAttribute("y", 438 - yFill);
+      $("fill-red").setAttribute("height", rFill);
+      $("fill-red").setAttribute("y", 438 - rFill);
+    }
+
+    function noteDestination(itemId, itemClass, where) {
+      const list = $("destinations");
+      const empty = $("dest-empty");
+      if (empty) empty.hidden = true;
+      const li = document.createElement("li");
+      li.textContent = (itemId || "Item") + " · " + (itemClass || "unknown") + " · " + where;
+      list.prepend(li);
+      while (list.children.length > 6) list.removeChild(list.lastChild);
+    }
+
+    function setProcessed(done, note) {
+      const el = $("process-state");
+      el.textContent = done ? "Processed" : "Not processed";
+      el.className = "f0" + (done ? " yes" : "");
+      if (note) $("process-note").textContent = note;
+    }
+
+    function addLedgerRow(row) {
+      const body = $("ledger-body");
+      const tr = document.createElement("tr");
+      const hash = (row.hash || "").slice(0, 10);
+      tr.innerHTML = "<td>" + (row.index ?? "") + "</td><td>" + (row.event_type || row.event || "append") + "</td><td>" + hash + "</td>";
+      body.prepend(tr);
+      while (body.children.length > 6) body.removeChild(body.lastChild);
+    }
+
+    function noteLatency(ms) {
+      if (typeof ms !== "number" || !isFinite(ms)) return;
+      latencySamples.push(ms);
+      const avg = latencySamples.reduce((a, b) => a + b, 0) / latencySamples.length;
+      const text = Math.round(avg) + " ms";
+      $("latency").textContent = text;
+      $("stat-latency").textContent = text;
+    }
+
+    function markReplay(data) {
+      if (data && (data.replay === true || data.mode === "replay")) $("replay-badge").classList.add("on");
+    }
+
+    function handleEvent(data) {
+      if (!data || typeof data !== "object") return;
+      lastEventAt = Date.now();
+      everConnected = true;
+      setConnection(true, "Live");
+      markReplay(data);
+      if ($("banner").classList.contains("offline")) showBanner("", "");
+
+      if (data.event === "heartbeat") {
+        if (data.model) $("device-line").textContent = data.model + " · Pi camera · Arduino Uno, two bins";
+        return;
+      }
+      if (typeof data.processed === "boolean") {
+        setProcessed(data.processed, data.source ? ("Reported by " + data.source) : "Reported by another station.");
+      }
+      if (data.event === "classified") {
+        heldItem = data.item_id || heldItem;
+        $("klass").textContent = data.item_class || "Unknown";
+        $("conf").textContent = typeof data.confidence === "number" ? Math.round(data.confidence * 100) + "%" : "—";
+        $("reason").textContent = plainReason(data.reason);
+        setDecision(data.route);
+        setFlap(data.flap);
+        noteLatency(data.latency_ms);
+        if (data.route === "yellow") noteDestination(data.item_id, data.item_class, "Yellow");
+        else if (data.route === "red") noteDestination(data.item_id, data.item_class, "Red");
+        else if (data.route === "hold") noteDestination(data.item_id, data.item_class, "Held in the chute");
+        if (data.route === "hold") {
+          showBanner("hold", "Held. " + plainReason(data.reason));
+          $("btn-override").disabled = !data.item_id;
+        } else {
+          showBanner("", "");
+          $("btn-override").disabled = true;
+        }
+        $("chip-white").classList.toggle("lit", data.reason === "metal_veto");
+        $("chip-blue").classList.toggle("lit", data.reason === "glass_detected");
+      } else if (data.event === "routed") {
+        if (data.flap === "left") { counts.yellow++; dropPiece("yellow"); twinAnimate("yellow"); }
+        else if (data.flap === "right") { counts.red++; dropPiece("red"); twinAnimate("red"); }
+        else { counts.hold++; dropPiece("hold"); twinAnimate("shut"); }
+        setFlap(data.flap);
+        paintCounts();
+      } else if (data.event === "held") {
+        counts.hold++;
+        heldItem = data.item_id || heldItem;
+        if (data.reason === "sensor_vision_disagreement") counts.disagree++;
+        dropPiece("hold");
+        twinAnimate("shut");
+        setDecision("hold");
+        setFlap("centre");
+        $("reason").textContent = plainReason(data.reason);
+        showBanner("hold", "Held. " + plainReason(data.reason));
+        $("btn-override").disabled = !heldItem;
+        $("chip-white").classList.toggle("lit", data.reason === "metal_veto");
+        $("chip-blue").classList.toggle("lit", data.reason === "glass_detected");
+        paintCounts();
+      } else if (data.event === "override") {
+        counts.overrides++;
+        paintCounts();
+        showBanner("", "");
+      } else if (data.event === "ledger_append") {
+        addLedgerRow(data);
+      } else if (data.event === "state_change" && data.to === "RELEASED") {
+        setProcessed(true, "The other station reported this batch processed.");
+      } else if (data.event === "state_change" && data.to === "BI_PENDING") {
+        setProcessed(false, "Handed to the other station. Not processed yet.");
+      }
+    }
+
+    function connect() {
+      const ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
+      ws.onopen = () => { everConnected = true; lastEventAt = Date.now(); setConnection(true, "Live"); };
+      ws.onmessage = (ev) => {
+        try { handleEvent(JSON.parse(ev.data)); } catch (err) { /* ignore a bad frame */ }
+      };
+      ws.onclose = () => {
+        setConnection(false, everConnected ? "Connection lost" : "Server not reachable");
+        showBanner("offline", "Server not reachable. The page is up. Nothing on it is live.");
+        setTimeout(connect, 2000);
+      };
+    }
+
+    async function loadInitial() {
+      try {
+        const stateRes = await fetch("/state");
+        if (!stateRes.ok) throw new Error("state");
+        const state = await stateRes.json();
+        if (state.batch && state.batch.batch_id) $("batch-id").textContent = state.batch.batch_id;
+        if (state.release_blocked) setProcessed(false, "Another station has not cleared this batch.");
+        const ledgerRes = await fetch("/ledger");
+        if (ledgerRes.ok) {
+          const rows = await ledgerRes.json();
+          rows.slice(-6).forEach(addLedgerRow);
+        }
+        setConnection(true, "Server up");
+      } catch (err) {
+        setConnection(false, "Server not reachable");
+        showBanner("offline", "Server not reachable. Open this page from the BioSeg server, not as a file.");
+      }
+    }
+
+    function cameraStreamUrl() {
+      return location.protocol + "//" + location.hostname + ":9081/?t=" + Date.now();
+    }
+    $("camera").addEventListener("load", () => { $("camera").hidden = false; $("standby").hidden = true; });
+    $("camera").addEventListener("error", () => {
+      $("camera").hidden = true;
+      $("standby").hidden = false;
+      setTimeout(() => { $("camera").src = cameraStreamUrl(); }, 2000);
+    });
+    $("camera").src = cameraStreamUrl();
+    $("btn-verify").addEventListener("click", async () => {
+      const el = $("verify-result");
+      try {
+        const res = await fetch("/ledger/verify");
+        const json = await res.json();
+        if (json.valid) {
+          el.textContent = "Chain valid";
+          el.style.color = "var(--ok)";
+        } else {
+          el.textContent = "Broken at row " + json.broken_at;
+          el.style.color = "var(--danger)";
+        }
+      } catch (err) {
+        el.textContent = "Verify failed";
+        el.style.color = "var(--danger)";
+      }
+    });
+    $("btn-override").addEventListener("click", () => {
+      $("override-item").textContent = heldItem ? ("Item " + heldItem) : "No held item.";
+      $("override-reason").value = "";
+      $("override-dialog").showModal();
+    });
+    $("override-cancel").addEventListener("click", () => $("override-dialog").close());
+    $("override-form").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const reason = $("override-reason").value.trim();
+      if (!reason || !heldItem) return;
+      const res = await fetch("/override", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ item_id: heldItem, reason: reason, operator: "demo" })
+      });
+      if (res.ok) $("override-dialog").close();
+    });
+
+    setInterval(() => {
+      $("clock").textContent = new Date().toLocaleTimeString();
+      if (!everConnected || !lastEventAt) return;
+      const ago = Math.round((Date.now() - lastEventAt) / 1000);
+      if (ago > 10) {
+        setConnection(false, "Last event " + ago + "s ago");
+        if (!$("banner").classList.contains("fail")) {
+          showBanner("offline", "No heartbeat. Last event " + ago + "s ago.");
+        }
+      }
+    }, 1000);
+
+    function twinBinLabel(json) {
+      const c = json.classified || {};
+      const route = json.route != null ? json.route : c.route;
+      const flap = json.flap != null ? json.flap : c.flap;
+      if (route === "yellow" || flap === "left") return "Yellow bin · servo LEFT";
+      if (route === "red" || flap === "right") return "Red bin · servo RIGHT";
+      return "HOLD · gate shut (white/blue by hand on Uno)";
+    }
+
+    function showTwinClassifyResult(json) {
+      const c = json.classified || {};
+      const route = json.route != null ? json.route : c.route;
+      const itemClass = json.class != null ? json.class : c.item_class;
+      const conf = json.confidence != null ? json.confidence : c.confidence;
+      const reason = json.reason != null ? json.reason : c.reason;
+      const flap = json.flap != null ? json.flap : c.flap;
+      const el = $("twin-result");
+      el.hidden = false;
+      el.className = "twin-result " + (route === "yellow" ? "yellow" : route === "red" ? "red" : "hold");
+      $("twin-result-bin").textContent = twinBinLabel(json);
+      $("twin-result-class").textContent = itemClass || "—";
+      $("twin-result-conf").textContent = typeof conf === "number" ? Math.round(conf * 100) + "%" : "—";
+      $("twin-result-reason").textContent = plainReason(reason);
+      $("twin-result-flap").textContent =
+        flap === "left" ? "Left → yellow" : flap === "right" ? "Right → red" : "Centre · shut";
+      $("classify-status").textContent =
+        "Model: " + (itemClass || "?") + " → " + twinBinLabel(json) +
+        ". Chute animation follows the live WebSocket event.";
+    }
+
+    async function runModelSample(sample) {
+      $("classify-status").textContent = "Running ONNX on a " + sample + " stock photo…";
+      try {
+        const res = await fetch("/demo/sample", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sample: sample })
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        showTwinClassifyResult(json);
+      } catch (err) {
+        $("classify-status").textContent = "Model drop failed. Is the server running with the ONNX file?";
+      }
+    }
+
+    async function runUploadClassify() {
+      const input = $("twin-upload");
+      const file = input.files && input.files[0];
+      if (!file) {
+        $("classify-status").textContent = "Choose a photo first (JPEG or PNG).";
+        return;
+      }
+      $("classify-status").textContent = "Running ONNX on " + file.name + "…";
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+      try {
+        const res = await fetch("/demo/upload", { method: "POST", body: fd });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        showTwinClassifyResult(json);
+      } catch (err) {
+        $("classify-status").textContent = "Upload classify failed. Is the server running with the ONNX file?";
+      }
+    }
+
+    $("mode-live").addEventListener("click", () => setMode("live"));
+    $("mode-twin").addEventListener("click", () => setMode("twin"));
+    $("twin-sample-run").addEventListener("click", () => runModelSample($("twin-sample-select").value));
+    $("twin-upload-run").addEventListener("click", () => runUploadClassify());
+    $("twin-model-gauze").addEventListener("click", () => runModelSample("gauze"));
+    $("twin-model-glove").addEventListener("click", () => runModelSample("glove"));
+    $("twin-model-syringe").addEventListener("click", () => runModelSample("syringe"));
+    $("twin-model-urine").addEventListener("click", () => runModelSample("urine_bag"));
+    $("twin-model-tube").addEventListener("click", () => runModelSample("test_tube"));
+    $("twin-model-glasses").addEventListener("click", () => runModelSample("glasses"));
+    $("twin-ir").addEventListener("click", () => twinAnimate("ir"));
+    $("twin-yellow").addEventListener("click", () => twinAnimate("yellow"));
+    $("twin-shut").addEventListener("click", () => twinAnimate("shut"));
+    $("twin-red").addEventListener("click", () => twinAnimate("red"));
+    $("twin-white").addEventListener("click", () => twinAnimate("white"));
+    $("twin-blue").addEventListener("click", () => twinAnimate("blue"));
+
+    if (new URLSearchParams(location.search).get("replay") === "1") $("replay-badge").classList.add("on");
+    if (new URLSearchParams(location.search).get("twin") === "1") setMode("twin");
+    paintCounts();
+    setFlap("centre");
+    loadInitial();
+    connect();
+  </script>
+</body>
+</html>
